@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THE RIDE — Ultra Performance Gear & Showcase</title>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+
+  <!-- External Stylesheet -->
+  <link rel="stylesheet" href="style.css" />
+
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+</head>
+<body>
+
+  <!-- ======================================================= -->
+  <!-- AUDIO ELEMENT (APNA CUSTOM AUDIO/MUSIC YAHA ADD KAREIN) -->
+  <!-- ======================================================= -->
+  <audio id="custom-ride-audio" preload="auto" loop>
+    <!-- Apni mp3 audio file ka path yaha daalein (e.g. music.mp3) -->
+    <source src="music.mp3" type="audio/mpeg" />
+    <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=sport-tech-house-workout-club-112708.mp3" type="audio/mpeg" />
+  </audio>
+
+  <!-- Custom Cursor Matching Image 1 & 2 -->
+  <div id="custom-cursor">
+    <svg viewBox="0 0 24 24" fill="none">
+      <path d="M4 3L19 12L11.5 14L9 21L4 3Z" fill="white" stroke="black" stroke-width="1.5" stroke-linejoin="round"/>
+    </svg>
+  </div>
+
+  <!-- INTRO SCREEN: FULL SCREEN LOW-OPACITY BACKGROUND IMAGE -->
+  <div id="intro-overlay">
+    <!-- FULLSCREEN LOW OPACITY IMAGE LAYER -->
+    <div class="intro-bg-wrapper" id="intro-bg-wrapper">
+      <!-- AAP APNI IMAGE KA PATH YAHA 'src' ME REPLACE KAREIN (e.g. intro-bike.jpg) -->
+      <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1920&q=85" alt="Background Bike Atmospheric" class="intro-fullscreen-bg-img" id="intro-bg-img" />
+      <div class="intro-dark-vignette"></div>
+    </div>
+
+    <!-- Centered Typography & Button -->
+    <div class="intro-content">
+      <h1 class="intro-title">I'VE GOT AN<br>EXTRA HELMET.</h1>
+      <p class="intro-sub">Coming along?</p>
+      <button id="enter-btn" class="im-in-btn">
+        <span>I'm in</span>
+        <div class="btn-arrow-down"></div>
+      </button>
+    </div>
+  </div>
+
+  <!-- VISOR / EYE-BLINK OVERLAY ON SCROLL -->
+  <div id="visor-transition" class="visor-closed">
+    <div class="eyelid eyelid-top"></div>
+    <div class="eyelid-hud">
+      <div class="hud-center-cross"></div>
+      <div class="hud-readout">SYSTEMS ENGAGED // APEX READY</div>
+    </div>
+    <div class="eyelid eyelid-bottom"></div>
+  </div>
+
+  <!-- MAIN EXPERIENCE WRAPPER -->
+  <div id="main-app" class="hidden-init">
+
+    <!-- FLOATING TOP NAVIGATION -->
+    <header class="ride-header">
+      <div class="brand-crest">
+        <svg width="26" height="26" viewBox="0 0 100 100" fill="none">
+          <polygon points="50,12 90,82 10,82" stroke="white" stroke-width="8" stroke-linejoin="round"/>
+          <polygon points="50,38 72,74 28,74" fill="white"/>
+        </svg>
+        <span>APEX//RIDER</span>
+      </div>
+      <nav class="nav-links">
+        <a href="#hero-section" class="active">The ride</a>
+        <a href="#about">About</a>
+        <a href="#helmet-gear">Helmets</a>
+        <a href="#jacket-gear">Jackets</a>
+        <a href="#accessories">Accessories</a>
+        <a href="#contact">Contact</a>
+        <a href="#faq">FAQ</a>
+      </nav>
+    </header>
+
+    <!-- HERO SECTION WITH VIDEO & LEAN PHYSICS -->
+    <section id="hero-section" class="hero-stage">
+      <div class="video-perspective-wrapper" id="video-tilt-rig">
+        <video id="hero-video" loop muted playsinline preload="auto">
+          <source src="./bike.mp4" type="video/mp4" />
+          <source src="https://assets.mixkit.co/videos/preview/mixkit-motorcyclist-traveling-down-a-scenic-highway-at-sunset-42994-large.mp4" type="video/mp4" />
+        </video>
+        <div class="video-overlay-gradient"></div>
+        <div class="vignette-effect"></div>
+      </div>
+
+      <!-- Hero Interface -->
+      <div class="hero-interface">
+        <div class="hero-left-block">
+          <h2 class="hero-giant-title">THE<br>RIDE</h2>
+          <p class="hero-subtext">Take your time. There's a bit to discover.</p>
+        </div>
+
+        <div class="hero-speech-bubbles">
+          <div class="bubble bubble-1">Alright, let's ride.</div>
+          <div class="bubble bubble-2">
+            <span>Scroll down when you're ready.</span>
+            <div class="scroll-chevron"></div>
+          </div>
+        </div>
+
+        <!-- Audio & Controls Bar -->
+        <div class="hero-bottom-bar">
+          <div class="progress-track">
+            <div class="progress-bar-fill" id="audio-progress"></div>
+          </div>
+          <div class="controls-group">
+            <button id="audio-toggle-btn" class="hud-icon-btn" aria-label="Toggle Sound">
+              <svg id="sound-icon-on" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+              </svg>
+              <svg id="sound-icon-off" class="hidden" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                <line x1="23" y1="9" x2="17" y2="15"></line>
+                <line x1="17" y1="9" x2="23" y2="15"></line>
+              </svg>
+              <span id="sound-label">SOUND ON</span>
+            </button>
+            <div class="gear-indicator">RIDE MODE <span>TRACK</span></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTENT SECTIONS (ONE-PAGE SHOWCASE) -->
+    <main class="showcase-content">
+
+      <!-- 1. ABOUT SECTION -->
+      <section id="about" class="section-container about-grid">
+        <div class="section-badge">01 // DNA & PHILOSOPHY</div>
+        <div class="about-lead">
+          <h2 class="display-title">ENGINEERED FOR THE APEX HUNTERS.</h2>
+          <p class="about-desc">
+            Forged in high-velocity wind tunnels and refined on championship circuits. We strip away excess weight, maximize structural rigidity, and design gear that connects the rider directly with the tarmac.
+          </p>
+        </div>
+        <div class="specs-mini-grid">
+          <div class="spec-card">
+            <span class="spec-num">380+</span>
+            <span class="spec-label">KM/H WIND TUNNEL CERTIFIED</span>
+          </div>
+          <div class="spec-card">
+            <span class="spec-num">100%</span>
+            <span class="spec-label">PRE-PREG CARBON WEAVE</span>
+          </div>
+          <div class="spec-card">
+            <span class="spec-num">CE-L2</span>
+            <span class="spec-label">D3O® GHOST™ BALLISTIC ARMOR</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. HELMETS SLIDER SHOWCASE (6 PIECES) -->
+      <section id="helmet-gear" class="section-container">
+        <div class="section-header-flex">
+          <div>
+            <div class="section-badge">02 // AERODYNAMIC HEADGEAR</div>
+            <h2 class="display-title">HELMET COLLECTION</h2>
+          </div>
+          <div class="slider-nav-arrows">
+            <button class="slider-arrow" id="slide-left" aria-label="Slide Left">←</button>
+            <button class="slider-arrow" id="slide-right" aria-label="Slide Right">→</button>
+          </div>
+        </div>
+
+        <div class="slider-container" id="helmet-slider">
+          <div class="product-card">
+            <div class="card-tag">NEW RELEASE</div>
+            <div class="card-img-wrap">
+              <img src="./img/img1.jpg" alt="Phantom Track Spec Helmet" />
+            </div>
+            <div class="card-details">
+              <h3>PHANTOM TRACK SPEC</h3>
+              <p class="card-caption">Pure 12K forged carbon fiber with dual top vents and race aerodynamics.</p>
+              <div class="card-meta"><span>1,050g</span> • <span>ECE 22.06 & FIM</span></div>
+              <button class="view-spec-btn">EXPLORE DETAILS</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="card-tag highlight">BESTSELLER</div>
+            <div class="card-img-wrap">
+              <img src="./img/img2.jpg" alt="Ghost Mono White" />
+            </div>
+            <div class="card-details">
+              <h3>GHOST MONO RACER</h3>
+              <p class="card-caption">Triple composite aramid matrix with integrated quick-release visor latch.</p>
+              <div class="card-meta"><span>1,150g</span> • <span>DOT / ECE 22.06</span></div>
+              <button class="view-spec-btn">EXPLORE DETAILS</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="card-tag">URBAN CAFE</div>
+            <div class="card-img-wrap">
+              <img src="./img/img3.jpg" alt="Veloce Retro Bullitt" />
+            </div>
+            <div class="card-details">
+              <h3>VELOCE RETRO BULLITT</h3>
+              <p class="card-caption">Brushed aluminum visor hinges paired with full-grain leather perimeter trim.</p>
+              <div class="card-meta"><span>1,200g</span> • <span>ECE CERTIFIED</span></div>
+              <button class="view-spec-btn">EXPLORE DETAILS</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="card-tag">STEALTH EDITION</div>
+            <div class="card-img-wrap">
+              <img src="./img/img4.jpg" alt="Stealth Matte Carbon" />
+            </div>
+            <div class="card-details">
+              <h3>NIGHTHAWK STEALTH</h3>
+              <p class="card-caption">Matte finish anti-reflective carbon shell built specifically for night raids.</p>
+              <div class="card-meta"><span>1,090g</span> • <span>SHARP 5-STAR</span></div>
+              <button class="view-spec-btn">EXPLORE DETAILS</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="card-tag">CIRCUIT SPEC</div>
+            <div class="card-img-wrap">
+              <img src="./img/img5.jpg" alt="Apex Grand Prix GP-1" />
+            </div>
+            <div class="card-details">
+              <h3>GP-1 CORSA RACE</h3>
+              <p class="card-caption">Developed for MotoAmerica racers with extended rear stabilizing spoiler.</p>
+              <div class="card-meta"><span>1,120g</span> • <span>FIM RACING HOMOLOGATED</span></div>
+              <button class="view-spec-btn">EXPLORE DETAILS</button>
+            </div>
+          </div>
+
+          <div class="product-card">
+            <div class="card-tag">ADVENTURE DUAL</div>
+            <div class="card-img-wrap">
+              <img src="./img/img6.jpg" alt="Sahara Trek ADV Helmet" />
+            </div>
+            <div class="card-details">
+              <h3>SAHARA EXPEDITION</h3>
+              <p class="card-caption">Dual-sport off-road/road hybrid with removable peak visor and goggle integration.</p>
+              <div class="card-meta"><span>1,280g</span> • <span>ECE / DUAL CERT</span></div>
+              <button class="view-spec-btn">EXPLORE DETAILS</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 3. JACKETS SHOWCASE (5 PIECES) -->
+      <section id="jacket-gear" class="section-container">
+        <div class="section-header-flex">
+          <div>
+            <div class="section-badge">03 // BALLISTIC LEATHERS & ARMOR</div>
+            <h2 class="display-title">JACKET LINEUP</h2>
+          </div>
+          <p class="section-subtitle">CE Level-2 certified protection crafted with top-tier race hide.</p>
+        </div>
+
+        <div class="jacket-grid">
+          <div class="jacket-card">
+            <div class="jacket-img-box">
+              <img src="https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=800&q=80" alt="Overlord Pro Armor II" />
+            </div>
+            <div class="jacket-body">
+              <span class="j-badge">TRACK SPEC</span>
+              <h3>OVERLORD PRO ARMOR II</h3>
+              <p>1.3mm drum-dyed race cowhide with external titanium shoulder sliders and localized perforation.</p>
+              <ul class="j-features">
+                <li>• Pre-curved aggressive race sleeves</li>
+                <li>• CE Level-2 D3O® Back & Shoulder armor</li>
+              </ul>
+              <button class="view-spec-btn">EXPLORE FIT</button>
+            </div>
+          </div>
+
+          <div class="jacket-card">
+            <div class="jacket-img-box">
+              <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80" alt="Vintage Cafe Racer Hide" />
+            </div>
+            <div class="jacket-body">
+              <span class="j-badge">HERITAGE</span>
+              <h3>VELOCE CAFE BOMBER</h3>
+              <p>Washed buffalo leather with timeless diamond quilted shoulders and low-profile protection.</p>
+              <ul class="j-features">
+                <li>• Soft-touch distressed finish</li>
+                <li>• Flexible SAS-TEC stealth elbow armor</li>
+              </ul>
+              <button class="view-spec-btn">EXPLORE FIT</button>
+            </div>
+          </div>
+
+          <div class="jacket-card">
+            <div class="jacket-img-box">
+              <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80" alt="Storm-Core Vented Mesh" />
+            </div>
+            <div class="jacket-body">
+              <span class="j-badge">SUMMER AIRFLOW</span>
+              <h3>STORM-CORE MESH ARMOR</h3>
+              <p>High-density ballistic mesh construction offering unmatched airflow for brutal hot climate riding.</p>
+              <ul class="j-features">
+                <li>• 600D Cordura reinforcement</li>
+                <li>• 360-degree high-luminescence reflectors</li>
+              </ul>
+              <button class="view-spec-btn">EXPLORE FIT</button>
+            </div>
+          </div>
+
+          <div class="jacket-card">
+            <div class="jacket-img-box">
+              <img src="https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?auto=format&fit=crop&w=800&q=80" alt="Nordic ADV Gore-Tex" />
+            </div>
+            <div class="jacket-body">
+              <span class="j-badge">ALL-WEATHER ADV</span>
+              <h3>NORDIC TOURING GORE-TEX</h3>
+              <p>3-layer waterproof membrane designed to keep you completely dry through cross-country downpours.</p>
+              <ul class="j-features">
+                <li>• Removable thermal storm collar</li>
+                <li>• Waterproof cargo chest chambers</li>
+              </ul>
+              <button class="view-spec-btn">EXPLORE FIT</button>
+            </div>
+          </div>
+
+          <div class="jacket-card">
+            <div class="jacket-img-box">
+              <img src="https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=800&q=80" alt="Apex Street Fighter Hoodie" />
+            </div>
+            <div class="jacket-body">
+              <span class="j-badge">URBAN HOODIE</span>
+              <h3>STREET KEVLAR HOODIE</h3>
+              <p>Casual everyday aesthetic lined with 100% genuine DuPont™ Kevlar® abrasive backing.</p>
+              <ul class="j-features">
+                <li>• Hidden zippered armor pockets</li>
+                <li>• Wind-blocking kangaroo front pouch</li>
+              </ul>
+              <button class="view-spec-btn">EXPLORE FIT</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 4. ACCESSORIES WITH REAL PRODUCT IMAGES -->
+      <section id="accessories" class="section-container">
+        <div class="section-header-flex">
+          <div>
+            <div class="section-badge">04 // TACTICAL ADD-ONS</div>
+            <h2 class="display-title">ESSENTIAL ACCESSORIES</h2>
+          </div>
+          <p class="section-subtitle">Real riding essentials engineered for longevity and track-level performance.</p>
+        </div>
+
+        <div class="accessories-quad">
+          <div class="acc-tile">
+            <div class="acc-img-wrap">
+              <img src="./img/img7.jpg"alt="Carbon Knuckle Gloves" />
+            </div>
+            <h4>Carbon Knuckle Gloves</h4>
+            <p>Goatskin chassis with thermoformed carbon knuckles and palm sliders.</p>
+          </div>
+
+          <div class="acc-tile">
+            <div class="acc-img-wrap">
+              <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=700&q=80" alt="Helmet Mesh Intercom" />
+            </div>
+            <h4>Mesh Comms 3.0 Intercom</h4>
+            <p>JBL tuned 45mm helmet drivers with 1.6km group mesh intercom range.</p>
+          </div>
+
+          <div class="acc-tile">
+            <div class="acc-img-wrap">
+              <img src="https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&w=700&q=80" alt="Aerodynamic Dry Pack Backpack" />
+            </div>
+            <h4>Aerodynamic Dry-Pack 30L</h4>
+            <p>Rolltop 100% waterproof rider backpack contoured for zero helmet turbulence.</p>
+          </div>
+
+          <div class="acc-tile">
+            <div class="acc-img-wrap">
+              <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80" alt="Track Vented Riding Boots" />
+            </div>
+            <h4>Torque Vented Race Boots</h4>
+            <p>Ankle torsional brace system with replaceable magnesium toe sliders.</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- 5. CONTACT US SECTION -->
+      <section id="contact" class="section-container contact-section">
+        <div class="section-badge">05 // GET IN TOUCH</div>
+        <div class="contact-grid">
+          <div class="contact-info">
+            <h2 class="display-title">REACH THE PIT CREW.</h2>
+            <p class="about-desc">Have questions about sizing, custom leathers, or track day sponsorships? Drop us a message.</p>
+            <div class="info-items">
+              <div class="info-row">
+                <span class="info-label">HEADQUARTERS</span>
+                <span class="info-val">Apex Speed Lab, Trackway 09</span>
+              </div>
+              <div class="info-row">
+                <span class="info-label">SUPPORT EMAIL</span>
+                <span class="info-val">support@apexridermoto.com</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="contact-form-wrap">
+            <form id="contact-form" onsubmit="event.preventDefault(); alert('Message Received. The Apex Crew will contact you soon.');">
+              <div class="form-row">
+                <input type="text" placeholder="Your Name" required class="input-field" />
+                <input type="email" placeholder="Your Email" required class="input-field" />
+              </div>
+              <input type="text" placeholder="Gear of Interest (e.g. Phantom Helmet, Overlord Jacket)" class="input-field" />
+              <textarea placeholder="Your Message or Fitting Inquiry..." rows="4" required class="input-field"></textarea>
+              <button type="submit" class="submit-btn">SEND TRANSMISSION →</button>
+            </form>
+          </div>
+        </div>
+      </section>
+
+      <!-- 6. FAQ ACCORDION -->
+      <section id="faq" class="section-container faq-wrapper">
+        <div class="section-badge">06 // CLARIFICATIONS</div>
+        <h2 class="display-title">FREQUENTLY ASKED</h2>
+
+        <div class="faq-list">
+          <details class="faq-item" open>
+            <summary>How do I choose the correct helmet size?</summary>
+            <div class="faq-answer">
+              Measure around the largest part of your head (about 1 inch above your eyebrows). Our helmets have exchangeable 3D cheek pads to customize the fit from snug track to touring comfort.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>Are these helmets certified for competitive racing?</summary>
+            <div class="faq-answer">
+              Yes, all Track-Spec variants carry both ECE 22.06 and FIM homologation labels required by international racing circuits.
+            </div>
+          </details>
+          <details class="faq-item">
+            <summary>What warranty covers crash damage?</summary>
+            <div class="faq-answer">
+              We offer a 5-year structural warranty, plus a 50% crash-replacement discount if your helmet is involved in an incident within the first 24 months.
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- 7. MINIMALIST FOOTER -->
+      <footer class="ride-footer">
+        <div class="footer-top">
+          <div class="footer-col-brand">
+            <h3>APEX // RIDER</h3>
+            <p>Pushing the boundary between physics and emotion. Ride safe, ride fast.</p>
+          </div>
+          <div class="footer-links-col">
+            <h4>EXPLORE</h4>
+            <a href="#about">About</a>
+            <a href="#helmet-gear">Helmets</a>
+            <a href="#jacket-gear">Jackets</a>
+            <a href="#accessories">Accessories</a>
+          </div>
+          <div class="footer-links-col">
+            <h4>CONNECT</h4>
+            <a href="#contact">Contact Support</a>
+            <a href="#">Instagram</a>
+            <a href="#">YouTube</a>
+            <a href="#">Track Days</a>
+          </div>
+        </div>
+        <div class="footer-bottom">
+          <p>© 2026 APEX MOTORWEAR CO. ALL RIGHTS RESERVED.</p>
+          <div class="footer-legal">
+            <a href="#">PRIVACY POLICY</a>
+            <a href="#">TERMS OF APEX</a>
+            <a href="#">SAFETY CERTIFICATES</a>
+          </div>
+        </div>
+      </footer>
+
+    </main>
+  </div>
+
+  <!-- External Script -->
+  <script src="script.js"></script>
+</body>
+</html>

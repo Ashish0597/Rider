@@ -1,0 +1,1108 @@
+<!DOCTYPE html>
+<html lang="en" class="dark scroll-smooth">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>THE RIDE — Ultra Motorcycle Gear & Apex Helmet Showcase</title>
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- GSAP & ScrollTrigger -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <!-- Three.js for 3D Helmet Experience -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,600;0,800;0,900;1,800&family=Space+Grotesk:wght@400;600;700&display=swap" rel="stylesheet">
+
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"Space Grotesk"', 'monospace']
+          },
+          colors: {
+            asphalt: '#070709',
+            carbon: '#111114',
+            cyberorange: '#ff4d00',
+            visorgold: '#f59e0b'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    * {
+      cursor: none !important;
+      -webkit-font-smoothing: antialiased;
+      box-sizing: border-box;
+    }
+
+    body {
+      background-color: #070709;
+      color: #f3f4f6;
+      overflow-x: hidden;
+      user-select: none;
+    }
+
+    /* Custom Triangle / Apex Arrow Cursor (Matches Screenshots) */
+    #cursor-triangle {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 24px;
+      height: 24px;
+      pointer-events: none;
+      z-index: 99999;
+      transform: translate(-50%, -50%);
+      transition: transform 0.05s ease-out;
+      mix-blend-mode: difference;
+    }
+
+    /* Eye Blinking Eyelid Shutter Transition Overlay */
+    .eyelid {
+      position: fixed;
+      left: 0;
+      width: 100vw;
+      height: 50.5vh;
+      background: radial-gradient(circle at 50% 50%, #000000, #040406);
+      z-index: 10000;
+      pointer-events: none;
+      transition: transform 0.42s cubic-bezier(0.77, 0, 0.175, 1);
+    }
+    #eyelid-top {
+      top: 0;
+      transform: translateY(-100%);
+      border-bottom: 2px solid rgba(255, 77, 0, 0.4);
+    }
+    #eyelid-bottom {
+      bottom: 0;
+      transform: translateY(100%);
+      border-top: 2px solid rgba(255, 77, 0, 0.4);
+    }
+    .eyelids-closed #eyelid-top {
+      transform: translateY(0%);
+    }
+    .eyelids-closed #eyelid-bottom {
+      transform: translateY(0%);
+    }
+
+    /* Helmet Visor HUD Scanlines */
+    .hud-overlay {
+      background: radial-gradient(circle at center, transparent 45%, rgba(0, 0, 0, 0.7) 100%),
+                  linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%);
+      background-size: 100% 100%, 100% 4px;
+    }
+
+    /* Rider Leaning Perspective Box */
+    .perspective-container {
+      perspective: 1200px;
+      transform-style: preserve-3d;
+    }
+    #rider-tilt-layer {
+      transition: transform 0.15s cubic-bezier(0.2, 0.8, 0.2, 1);
+      will-change: transform;
+    }
+
+    /* Atmospheric Film Grain */
+    .grain {
+      position: fixed;
+      top: 0; left: 0; width: 100vw; height: 100vh;
+      background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.035'/%3E%3C/svg%3E");
+      pointer-events: none;
+      z-index: 999;
+    }
+
+    .glass-pill {
+      background: rgba(255, 255, 255, 0.08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      border: 1px solid rgba(255, 255, 255, 0.16);
+    }
+  </style>
+</head>
+
+<body class="bg-asphalt text-slate-100 selection:bg-orange-500 selection:text-white">
+
+  <!-- Grain Overlay -->
+  <div class="grain"></div>
+
+  <!-- Custom Triangle Cursor (Matches UI Screenshots 1, 2, 3) -->
+  <div id="cursor-triangle">
+    <svg viewBox="0 0 24 24" fill="white" class="w-6 h-6 filter drop-shadow-[0_2px_8px_rgba(0,0,0,0.8)]">
+      <polygon points="12,2 22,21 2,21" transform="rotate(180 12 12)" />
+    </svg>
+  </div>
+
+  <!-- Organic Eyelid / Helmet Visor Shutter (Engages on Scroll) -->
+  <div id="eyelid-top" class="eyelid shadow-2xl flex items-end justify-center pb-4">
+    <div class="h-1 w-28 bg-white/25 rounded-full"></div>
+  </div>
+  <div id="eyelid-bottom" class="eyelid shadow-2xl flex items-start justify-center pt-4">
+    <div class="h-1 w-28 bg-white/25 rounded-full"></div>
+  </div>
+
+  <!-- 1. INTRO SCREEN: Matches Screenshots 1 & 2 with Interactive 3D Helmet Canvas -->
+  <section id="intro-screen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-black overflow-hidden select-none transition-all duration-700">
+    
+    <!-- 3D Helmet Three.js WebGL Canvas Layer -->
+    <div class="absolute inset-0 z-0 flex items-center justify-center">
+      <canvas id="helmet-canvas" class="w-full h-full"></canvas>
+    </div>
+
+    <!-- Soft dark atmospheric radial gradient to frame the helmet and text -->
+    <div class="absolute inset-0 bg-radial-gradient from-black/20 via-black/60 to-black/90 pointer-events-none z-10"></div>
+
+    <!-- Centered Typography & Action (Matches Screenshot 1 & 2) -->
+    <div class="relative z-20 flex flex-col items-center text-center px-6 max-w-4xl pointer-events-auto">
+      
+      <!-- Top Arrow Accent (matches img1 top indicator) -->
+      <div class="mb-4 opacity-75 animate-bounce">
+        <svg class="w-5 h-5 fill-white rotate-180" viewBox="0 0 24 24">
+          <polygon points="12,2 22,21 2,21" />
+        </svg>
+      </div>
+
+      <h1 class="text-4xl sm:text-6xl md:text-7xl font-extrabold tracking-tighter uppercase leading-[1.06] text-white drop-shadow-[0_10px_35px_rgba(0,0,0,0.9)]">
+        I'VE GOT AN<br />EXTRA HELMET.
+      </h1>
+
+      <p class="mt-4 text-base sm:text-lg text-slate-300 font-medium tracking-wide">
+        Coming along?
+      </p>
+
+      <!-- Pill Button "I'm in" with Triangle highlight hover (Screenshot 2) -->
+      <div class="relative mt-7 group">
+        <button id="btn-enter" class="relative z-10 px-8 py-2.5 rounded-full bg-white text-black font-semibold text-sm sm:text-base tracking-wide transition-all duration-300 hover:scale-105 hover:bg-slate-100 shadow-[0_0_30px_rgba(255,255,255,0.4)] active:scale-95 flex items-center justify-center">
+          I'm in
+        </button>
+        <!-- Triangle border halo matching Image 2 -->
+        <div id="btn-highlight-triangle" class="absolute -inset-2 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+          <div class="w-full h-full border border-white/60 rounded-full scale-110"></div>
+        </div>
+      </div>
+      
+      <!-- Interactive hint -->
+      <p class="mt-6 text-[11px] uppercase tracking-widest text-zinc-400 font-mono flex items-center gap-2">
+        <span class="w-2 h-2 rounded-full bg-cyberorange animate-ping"></span>
+        Drag helmet to inspect &bull; Click to enter with rock riff
+      </p>
+    </div>
+  </section>
+
+  <!-- 2. ENTERED SCREEN: HERO RIDE (Matches Screenshot 3 + bike.mp4 video) -->
+  <section id="hero-ride" class="relative w-full h-screen overflow-hidden flex flex-col justify-between p-6 sm:p-10 select-none">
+    
+    <!-- Rider Video Layer with Real-Time Lean / Bank Tilt Physics -->
+    <div class="perspective-container absolute inset-0 w-full h-full pointer-events-none overflow-hidden">
+      <div id="rider-tilt-layer" class="w-full h-full origin-bottom transform scale-105">
+        <!-- Live Loop Bike POV Video (Matches bike.mp4 prompt) -->
+        <video id="ride-video" class="w-full h-full object-cover object-center" loop muted playsinline preload="auto">
+          <!-- Direct highway motorcycle riding loop matching bike.mp4 -->
+          <source src="bike.mp4" type="video/mp4">
+          <!-- Fallback high-speed sunset motorcycle highway POV stream -->
+          <source src="https://assets.mixkit.co/videos/preview/mixkit-man-riding-a-motorcycle-at-high-speed-42217-large.mp4" type="video/mp4">
+        </video>
+        <!-- Fallback static hero rider background -->
+        <div id="video-fallback" class="absolute inset-0 bg-cover bg-center -z-10" style="background-image: url('https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=2000&auto=format&fit=crop');"></div>
+      </div>
+    </div>
+
+    <!-- HUD Visor Glare & Dark Gradients -->
+    <div class="hud-overlay absolute inset-0 pointer-events-none"></div>
+    <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/40 pointer-events-none"></div>
+
+    <!-- TOP NAVIGATION (Matching Screenshot 3) -->
+    <header class="relative z-20 w-full flex items-center justify-between">
+      <!-- Speed Dash Markings on top left -->
+      <div class="flex items-center space-x-1.5 opacity-80">
+        <span class="h-4 w-1 bg-white inline-block rounded-full"></span>
+        <span class="h-2.5 w-0.5 bg-white/70 inline-block rounded-full"></span>
+        <span class="h-2 w-0.5 bg-white/50 inline-block rounded-full"></span>
+        <span class="h-2.5 w-0.5 bg-white/70 inline-block rounded-full"></span>
+        <span class="h-2 w-0.5 bg-white/50 inline-block rounded-full"></span>
+        <span class="h-3 w-0.5 bg-white/80 inline-block rounded-full"></span>
+        <span class="ml-2 font-mono text-[11px] tracking-widest text-white/80 uppercase">MOTO//SYS 01</span>
+      </div>
+
+      <!-- Nav Items Matching Screenshot 3: "The ride — Game  The rider  Build" -->
+      <nav class="flex items-center space-x-6 sm:space-x-8 text-sm font-medium text-white/90">
+        <a href="#hero-ride" class="hover:text-cyberorange transition-colors">The ride &mdash;</a>
+        <a href="#helmets-section" class="hover:text-cyberorange transition-colors hidden sm:inline-block">Game</a>
+        <a href="#story-section" class="hover:text-cyberorange transition-colors">The rider</a>
+        <a href="#cta-build" class="glass-pill px-4 py-1.5 rounded-full text-xs uppercase tracking-wider font-semibold hover:bg-white hover:text-black transition-all">Build</a>
+      </nav>
+    </header>
+
+    <!-- CENTER HUD PROMPT: "Scroll slowly" (Screenshot 3) -->
+    <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20 flex flex-col items-center pointer-events-none">
+      <div class="flex items-center gap-2 glass-pill px-3.5 py-1.5 rounded-full shadow-lg border border-white/20">
+        <svg class="w-4 h-4 fill-sky-300" viewBox="0 0 24 24">
+          <polygon points="12,2 22,21 2,21" />
+        </svg>
+        <span class="text-xs font-medium text-slate-100 tracking-wide">Scroll slowly &amp; move cursor to lean rider</span>
+      </div>
+    </div>
+
+    <!-- HERO MAIN CONTENT: Left Title & Right Chat Bubbles (Screenshot 3) -->
+    <div class="relative z-20 w-full flex flex-col md:flex-row items-start md:items-end justify-between gap-6 pb-4">
+      <!-- Left side: Big Typography -->
+      <div class="max-w-xl">
+        <h1 class="text-6xl sm:text-8xl md:text-9xl font-black uppercase tracking-tighter text-white leading-[0.88] drop-shadow-[0_8px_30px_rgba(0,0,0,0.9)]">
+          THE<br />RIDE
+        </h1>
+        <p class="mt-4 text-sm sm:text-base text-slate-200/90 font-medium max-w-sm drop-shadow">
+          Take your time. There’s a bit to discover.
+        </p>
+      </div>
+
+      <!-- Right side: Floating chat pills (Matching Screenshot 3) -->
+      <div class="flex flex-col items-end gap-2.5 max-w-xs self-end">
+        <div class="glass-pill bg-white/95 text-slate-900 font-semibold px-4 py-2 rounded-2xl rounded-tr-sm text-xs sm:text-sm shadow-xl">
+          Alright, let's ride.
+        </div>
+        <div class="glass-pill bg-white/95 text-slate-900 font-medium px-4 py-2 rounded-2xl rounded-tr-sm text-xs sm:text-sm shadow-xl">
+          Scroll down when you're ready.
+        </div>
+      </div>
+    </div>
+
+    <!-- BOTTOM UI BAR (Logo, Track bar, Sound toggle & Theme button) -->
+    <footer class="relative z-20 w-full pt-4 border-t border-white/20 flex items-center justify-between">
+      <!-- Apex Brand Triangle Logo -->
+      <a href="#" class="flex items-center gap-2 group">
+        <div class="w-7 h-7 border-2 border-white rotate-0 flex items-center justify-center group-hover:border-cyberorange transition-colors">
+          <svg class="w-4 h-4 fill-white" viewBox="0 0 24 24">
+            <polygon points="12,4 20,20 4,20" fill="none" stroke="currentColor" stroke-width="2.5" />
+          </svg>
+        </div>
+        <span class="font-bold tracking-widest text-sm text-white group-hover:text-cyberorange transition-colors">APEX//MOTO</span>
+      </a>
+
+      <!-- Progress Indicator Track -->
+      <div class="hidden sm:block flex-1 mx-8 h-[2px] bg-white/20 relative overflow-hidden rounded-full">
+        <div id="scroll-progress-bar" class="absolute top-0 left-0 h-full w-0 bg-white"></div>
+      </div>
+
+      <!-- Audio & Theme toggles (Screenshot 3 Bottom Right) -->
+      <div class="flex items-center space-x-3">
+        <!-- Sound on/off button with Rock Audio & Engine Synthesis -->
+        <button id="sound-toggle-btn" class="flex items-center gap-2 text-xs font-mono tracking-wider glass-pill px-3 py-1.5 rounded-full hover:bg-white/20 transition-all text-white" title="Toggle Ride Audio">
+          <i data-lucide="volume-2" class="w-4 h-4" id="sound-icon"></i>
+          <span id="sound-label">SOUND ON</span>
+        </button>
+
+        <!-- Theme Switch -->
+        <button id="theme-btn" class="glass-pill p-2 rounded-full hover:bg-white/20 transition-all text-white" title="Toggle Theme">
+          <i data-lucide="moon" class="w-4 h-4"></i>
+        </button>
+      </div>
+    </footer>
+  </section>
+
+  <!-- 3. BRAND & ENGINEERING PHILOSOPHY -->
+  <section id="story-section" class="relative py-28 px-6 sm:px-12 md:px-24 bg-carbon border-b border-white/10">
+    <div class="max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div class="lg:col-span-6 space-y-6">
+        <div class="inline-flex items-center gap-2 text-cyberorange font-mono text-xs uppercase tracking-widest bg-cyberorange/10 px-3 py-1 rounded-full border border-cyberorange/30">
+          <span class="w-2 h-2 rounded-full bg-cyberorange"></span>
+          Aerospace Grade Precision
+        </div>
+        <h2 class="text-4xl sm:text-5xl md:text-6xl font-extrabold tracking-tight text-white leading-tight">
+          CRAFTED FOR THE OUTLAW. ENGINEERED FOR SPEED.
+        </h2>
+        <p class="text-slate-400 text-lg leading-relaxed">
+          Every curve, seam, and visor mechanism is manufactured to eliminate high-speed aerodynamic turbulence. We fuse multilayer pre-impregnated Japanese Toray carbon fiber with military-spec ballistic aramid to build armor that moves with your machine.
+        </p>
+        <div class="grid grid-cols-3 gap-6 pt-6 border-t border-white/10 font-mono">
+          <div>
+            <div class="text-3xl font-bold text-white">1280<span class="text-cyberorange text-lg">g</span></div>
+            <div class="text-xs text-slate-400 mt-1 uppercase">Ultra-featherweight</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-white">ECE 22.06</div>
+            <div class="text-xs text-slate-400 mt-1 uppercase">FIM Homologated</div>
+          </div>
+          <div>
+            <div class="text-3xl font-bold text-white">0.24<span class="text-cyberorange text-lg">Cd</span></div>
+            <div class="text-xs text-slate-400 mt-1 uppercase">Wind Tunnel Tested</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Feature Interactive Card -->
+      <div class="lg:col-span-6 relative group">
+        <div class="relative overflow-hidden rounded-3xl border border-white/15 bg-gradient-to-b from-white/10 to-transparent p-2">
+          <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=1200&auto=format&fit=crop" 
+               alt="Rider in full race gear" 
+               class="rounded-2xl w-full h-[450px] object-cover transition-transform duration-700 group-hover:scale-105" />
+          <div class="absolute bottom-6 left-6 right-6 p-4 glass-pill rounded-xl border border-white/20 flex items-center justify-between">
+            <div>
+              <p class="text-xs font-mono text-cyberorange uppercase tracking-wider">Apex Monocoque Core</p>
+              <p class="text-white text-sm font-semibold">Zero distortion panoramic photochromic shield</p>
+            </div>
+            <button class="bg-white text-black px-4 py-1.5 rounded-full text-xs font-bold hover:bg-cyberorange hover:text-white transition-colors">
+              Inspect
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 4. HELMETS SHOWCASE -->
+  <section id="helmets-section" class="py-28 px-6 sm:px-12 md:px-20 bg-asphalt border-b border-white/10">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-widest text-slate-400">Section 02 // Headgear</span>
+          <h2 class="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white mt-2">
+            RACE HELMETS
+          </h2>
+        </div>
+        <p class="text-slate-400 max-w-md text-sm sm:text-base">
+          Engineered for track velocity. Featuring Pinlock 120 MaxVision, active vent venturi channels, and emergency quick-release cheek pads.
+        </p>
+      </div>
+
+      <!-- Helmet Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+        <!-- Helmet Item 1 -->
+        <div class="group relative rounded-3xl bg-carbon border border-white/10 p-6 flex flex-col justify-between hover:border-cyberorange/50 transition-all duration-500 hover:-translate-y-2">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-mono bg-white/10 px-3 py-1 rounded-full text-slate-300">LIMITED EDITION</span>
+            <span class="text-lg font-bold text-white font-mono">$780</span>
+          </div>
+          <div class="py-10 flex items-center justify-center relative">
+            <div class="absolute w-44 h-44 rounded-full bg-cyberorange/10 blur-3xl group-hover:bg-cyberorange/25 transition-all"></div>
+            <img src="https://images.unsplash.com/photo-1558980664-769d59546b3d?q=80&w=800&auto=format&fit=crop" 
+                 alt="Apex Phantom Carbon Helmet" 
+                 class="relative z-10 w-64 h-52 object-contain group-hover:scale-110 transition-transform duration-500 filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]" />
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-white group-hover:text-cyberorange transition-colors">PHANTOM X-1 FORGED</h3>
+            <p class="text-xs text-slate-400 mt-1">3K Twill Carbon • Transition Visor • Aerodynamic Spoiler</p>
+            <div class="mt-6 flex items-center justify-between pt-4 border-t border-white/10">
+              <span class="text-xs font-mono text-slate-300">Sizes: XS - XXL</span>
+              <button class="glass-pill px-4 py-1.5 rounded-full text-xs font-bold hover:bg-white hover:text-black transition-all">Quick Buy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Helmet Item 2 -->
+        <div class="group relative rounded-3xl bg-carbon border border-white/10 p-6 flex flex-col justify-between hover:border-cyberorange/50 transition-all duration-500 hover:-translate-y-2">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-mono bg-white/10 px-3 py-1 rounded-full text-slate-300">TRACK TESTED</span>
+            <span class="text-lg font-bold text-white font-mono">$640</span>
+          </div>
+          <div class="py-10 flex items-center justify-center relative">
+            <div class="absolute w-44 h-44 rounded-full bg-cyan-500/10 blur-3xl group-hover:bg-cyan-500/25 transition-all"></div>
+            <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?q=80&w=800&auto=format&fit=crop" 
+                 alt="Ghost White Modular Helmet" 
+                 class="relative z-10 w-64 h-52 object-cover rounded-xl group-hover:scale-110 transition-transform duration-500 filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]" />
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-white group-hover:text-cyberorange transition-colors">AURORA BLANC PURE</h3>
+            <p class="text-xs text-slate-400 mt-1">Matte Alpine Pearl • Anti-fog Dual Shield • Whisper Quiet</p>
+            <div class="mt-6 flex items-center justify-between pt-4 border-t border-white/10">
+              <span class="text-xs font-mono text-slate-300">Weight: 1,310g</span>
+              <button class="glass-pill px-4 py-1.5 rounded-full text-xs font-bold hover:bg-white hover:text-black transition-all">Quick Buy</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Helmet Item 3 -->
+        <div class="group relative rounded-3xl bg-carbon border border-white/10 p-6 flex flex-col justify-between hover:border-cyberorange/50 transition-all duration-500 hover:-translate-y-2">
+          <div class="flex justify-between items-start">
+            <span class="text-xs font-mono bg-cyberorange/20 text-cyberorange px-3 py-1 rounded-full">BESTSELLER</span>
+            <span class="text-lg font-bold text-white font-mono">$890</span>
+          </div>
+          <div class="py-10 flex items-center justify-center relative">
+            <div class="absolute w-44 h-44 rounded-full bg-amber-500/10 blur-3xl group-hover:bg-amber-500/25 transition-all"></div>
+            <img src="https://images.unsplash.com/photo-1558980664-10e7170b5df9?q=80&w=800&auto=format&fit=crop" 
+                 alt="Stealth Night Black Helmet" 
+                 class="relative z-10 w-64 h-52 object-contain group-hover:scale-110 transition-transform duration-500 filter drop-shadow-[0_15px_25px_rgba(0,0,0,0.8)]" />
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-white group-hover:text-cyberorange transition-colors">VORTEX STEALTH GLOSS</h3>
+            <p class="text-xs text-slate-400 mt-1">Gold Iridium Visor • Integrated Bluetooth Comms Ready</p>
+            <div class="mt-6 flex items-center justify-between pt-4 border-t border-white/10">
+              <span class="text-xs font-mono text-slate-300">Sizes: S - XL</span>
+              <button class="glass-pill px-4 py-1.5 rounded-full text-xs font-bold hover:bg-white hover:text-black transition-all">Quick Buy</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. RIDING JACKETS -->
+  <section id="jackets-section" class="py-28 px-6 sm:px-12 md:px-20 bg-carbon border-b border-white/10">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-col md:flex-row md:items-end justify-between mb-16 gap-6">
+        <div>
+          <span class="text-xs font-mono uppercase tracking-widest text-cyberorange">Section 03 // Armor &amp; Skins</span>
+          <h2 class="text-4xl sm:text-6xl font-black uppercase tracking-tight text-white mt-2">
+            RIDING JACKETS
+          </h2>
+        </div>
+        <p class="text-slate-400 max-w-md text-sm sm:text-base">
+          Constructed with Cordura&reg; 1000D abrasion resistance and intelligent D3O&reg; Level 2 reactive impact armors at shoulders, elbows, and thoracic spine.
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 lg:grid-cols-2 gap-10">
+        <!-- Jacket 1 -->
+        <div class="relative rounded-3xl bg-asphalt border border-white/10 overflow-hidden group">
+          <div class="h-96 w-full overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?q=80&w=1000&auto=format&fit=crop" 
+                 alt="Leather moto jacket" 
+                 class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" />
+            <div class="absolute inset-0 bg-gradient-to-t from-asphalt via-transparent to-transparent"></div>
+            <!-- Hotspot markers -->
+            <div class="absolute top-1/3 left-1/3 glass-pill px-3 py-1 rounded-full text-[11px] font-mono text-white flex items-center gap-1.5 animate-pulse">
+              <span class="w-1.5 h-1.5 bg-cyberorange rounded-full"></span> D3O&reg; Shoulder Armor
+            </div>
+            <div class="absolute bottom-1/4 right-1/4 glass-pill px-3 py-1 rounded-full text-[11px] font-mono text-white flex items-center gap-1.5 animate-pulse">
+              <span class="w-1.5 h-1.5 bg-emerald-400 rounded-full"></span> 1.3mm Full-grain Cowhide
+            </div>
+          </div>
+          <div class="p-8">
+            <div class="flex items-center justify-between">
+              <h3 class="text-2xl font-bold text-white">RENEGADE PRO COWHIDE</h3>
+              <span class="text-2xl font-mono font-bold text-white">$650</span>
+            </div>
+            <p class="text-slate-400 text-sm mt-3">
+              Classic roadster aesthetic fused with modern race-track ergonomics. Perforated accordion flex ribs along the latissimus dorsi provide unrestricted tuck postures.
+            </p>
+            <div class="mt-6 flex items-center gap-4">
+              <button class="bg-white text-black px-6 py-2.5 rounded-full text-xs font-bold hover:bg-cyberorange hover:text-white transition-all">Configure Size</button>
+              <button class="text-xs font-mono text-slate-300 hover:text-white underline underline-offset-4">Technical Specs &rarr;</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Jacket 2 -->
+        <div class="relative rounded-3xl bg-asphalt border border-white/10 overflow-hidden group">
+          <div class="h-96 w-full overflow-hidden relative">
+            <img src="https://images.unsplash.com/photo-1544441893-675973e31985?q=80&w=1000&auto=format&fit=crop" 
+                 alt="Textile touring jacket" 
+                 class="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-700" />
+            <div class="absolute inset-0 bg-gradient-to-t from-asphalt via-transparent to-transparent"></div>
+            <div class="absolute top-1/4 right-1/3 glass-pill px-3 py-1 rounded-full text-[11px] font-mono text-white flex items-center gap-1.5 animate-pulse">
+              <span class="w-1.5 h-1.5 bg-sky-400 rounded-full"></span> Gore-Tex&reg; Waterproof 28K
+            </div>
+          </div>
+          <div class="p-8">
+            <div class="flex items-center justify-between">
+              <h3 class="text-2xl font-bold text-white">KILOMETER 4-SEASON TEXTILE</h3>
+              <span class="text-2xl font-mono font-bold text-white">$580</span>
+            </div>
+            <p class="text-slate-400 text-sm mt-3">
+              Thermal removable down liner, FIDLOCK&reg; magnetic chest scoops for sub-second ventilation adjustments while wearing gloves at 80mph.
+            </p>
+            <div class="mt-6 flex items-center gap-4">
+              <button class="bg-white text-black px-6 py-2.5 rounded-full text-xs font-bold hover:bg-cyberorange hover:text-white transition-all">Configure Size</button>
+              <button class="text-xs font-mono text-slate-300 hover:text-white underline underline-offset-4">Technical Specs &rarr;</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 6. ACCESSORIES MATRIX -->
+  <section class="py-28 px-6 sm:px-12 md:px-20 bg-asphalt border-b border-white/10">
+    <div class="max-w-7xl mx-auto">
+      <div class="mb-14">
+        <span class="text-xs font-mono uppercase tracking-widest text-slate-400">Section 04 // Essentials</span>
+        <h2 class="text-4xl sm:text-5xl font-black uppercase text-white mt-2">TACTICAL ACCESSORIES</h2>
+      </div>
+
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="glass-pill p-5 rounded-2xl flex flex-col justify-between hover:bg-white/10 transition-all">
+          <div class="h-44 w-full rounded-xl overflow-hidden mb-4">
+            <img src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Kangaroo leather gloves" />
+          </div>
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-white text-sm">Carbon Palm Gauntlets</h4>
+            <span class="font-mono text-sm text-cyberorange">$160</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Kangaroo leather with palm slider protectors.</p>
+        </div>
+
+        <div class="glass-pill p-5 rounded-2xl flex flex-col justify-between hover:bg-white/10 transition-all">
+          <div class="h-44 w-full rounded-xl overflow-hidden mb-4">
+            <img src="https://images.unsplash.com/photo-1549298916-b41d501d3772?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Riding boots" />
+          </div>
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-white text-sm">Apex Torsion Boots</h4>
+            <span class="font-mono text-sm text-cyberorange">$340</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Magnesium toe sliders and anti-twist ankle brace.</p>
+        </div>
+
+        <div class="glass-pill p-5 rounded-2xl flex flex-col justify-between hover:bg-white/10 transition-all">
+          <div class="h-44 w-full rounded-xl overflow-hidden mb-4">
+            <img src="https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Magnetic tank bag" />
+          </div>
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-white text-sm">Magnetic 15L Tank Bag</h4>
+            <span class="font-mono text-sm text-cyberorange">$190</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">Neodymium 6-point lock with waterproof map pocket.</p>
+        </div>
+
+        <div class="glass-pill p-5 rounded-2xl flex flex-col justify-between hover:bg-white/10 transition-all">
+          <div class="h-44 w-full rounded-xl overflow-hidden mb-4">
+            <img src="https://images.unsplash.com/photo-1505740420928-5e560c06d30e?q=80&w=600&auto=format&fit=crop" class="w-full h-full object-cover" alt="Mesh bluetooth communicator" />
+          </div>
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-white text-sm">Apex Mesh Comms 5.4</h4>
+            <span class="font-mono text-sm text-cyberorange">$270</span>
+          </div>
+          <p class="text-xs text-slate-400 mt-1">JBL acoustic tuned, 1.2 mile rider-to-rider mesh link.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 7. CALL TO ACTION -->
+  <section id="cta-build" class="py-32 px-6 sm:px-12 bg-gradient-to-b from-carbon via-asphalt to-black relative overflow-hidden text-center">
+    <div class="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(255,77,0,0.15)_0,transparent_60%)]"></div>
+    <div class="relative z-10 max-w-4xl mx-auto space-y-8">
+      <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-white/20 glass-pill text-xs font-mono uppercase tracking-widest text-slate-300">
+        <i data-lucide="zap" class="w-3.5 h-3.5 text-cyberorange"></i>
+        Instant Custom Helmet Configurator
+      </div>
+      <h2 class="text-5xl sm:text-7xl md:text-8xl font-black uppercase tracking-tighter text-white leading-tight">
+        GEAR UP FOR<br /><span class="text-transparent bg-clip-text bg-gradient-to-r from-white via-slate-200 to-cyberorange">THE UNKNOWN.</span>
+      </h2>
+      <p class="text-slate-300 text-lg max-w-2xl mx-auto">
+        Join the collective. Book a certified 1-on-1 laser cranium fitting session or build your bespoke custom paint kit with our race engineers.
+      </p>
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
+        <button class="w-full sm:w-auto px-9 py-4 rounded-full bg-white text-black font-extrabold text-sm uppercase tracking-wider hover:bg-cyberorange hover:text-white transition-all shadow-[0_0_35px_rgba(255,255,255,0.3)]">
+          Launch 3D Configurator
+        </button>
+        <button class="w-full sm:w-auto px-8 py-4 rounded-full border border-white/30 text-white font-semibold text-sm hover:bg-white/10 transition-all">
+          Locate Flagship Studio
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- 8. FREQUENTLY ASKED QUESTIONS -->
+  <section class="py-24 px-6 sm:px-12 md:px-24 bg-asphalt border-t border-white/10">
+    <div class="max-w-4xl mx-auto">
+      <h3 class="text-3xl font-extrabold uppercase tracking-tight text-white mb-10 text-center">
+        FREQUENT INQUIRIES
+      </h3>
+      <div class="space-y-4" id="faq-container">
+        <div class="faq-item border border-white/10 rounded-2xl p-6 bg-carbon/60 transition-all cursor-pointer">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-white text-base">How does the dynamic visor photochromic lens function?</h4>
+            <span class="faq-icon text-cyberorange text-xl">+</span>
+          </div>
+          <div class="faq-content hidden mt-4 text-slate-400 text-sm leading-relaxed border-t border-white/10 pt-4">
+            Our visors integrate crystalline micro-sensors that react within 120 milliseconds to ultraviolet rays. They shift from clear 90% luminous transmittance in tunnels to dark smoke 12% in peak afternoon sunlight.
+          </div>
+        </div>
+
+        <div class="faq-item border border-white/10 rounded-2xl p-6 bg-carbon/60 transition-all cursor-pointer">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-white text-base">Are all jackets approved for MotoGP track days?</h4>
+            <span class="faq-icon text-cyberorange text-xl">+</span>
+          </div>
+          <div class="faq-content hidden mt-4 text-slate-400 text-sm leading-relaxed border-t border-white/10 pt-4">
+            Yes, our Renegade Pro line includes full 360-degree perimeter heavy-duty YKK connecting zippers matching track homologation rules, alongside full CE AAA certified abrasion credentials.
+          </div>
+        </div>
+
+        <div class="faq-item border border-white/10 rounded-2xl p-6 bg-carbon/60 transition-all cursor-pointer">
+          <div class="flex justify-between items-center">
+            <h4 class="font-bold text-white text-base">What is the crash replacement warranty policy?</h4>
+            <span class="faq-icon text-cyberorange text-xl">+</span>
+          </div>
+          <div class="faq-content hidden mt-4 text-slate-400 text-sm leading-relaxed border-t border-white/10 pt-4">
+            If you crash within 3 years of purchasing any Apex helmet, send us the police or track marshals report along with the damaged unit for destructive telemetry analysis, and receive 50% credit toward your replacement.
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9. FOOTER -->
+  <footer class="py-16 px-6 sm:px-12 md:px-24 bg-black border-t border-white/10 text-slate-400 text-xs font-mono">
+    <div class="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start md:items-center gap-8">
+      <div>
+        <div class="flex items-center gap-2 text-white font-bold text-base mb-2">
+          <svg class="w-4 h-4 fill-cyberorange" viewBox="0 0 24 24">
+            <polygon points="12,4 20,20 4,20" />
+          </svg>
+          APEX MOTOR DIVISION
+        </div>
+        <p class="max-w-xs text-slate-500">Autonomous design atelier for two-wheel speed, aerodynamics, and high-velocity preservation.</p>
+      </div>
+
+      <div class="flex flex-wrap gap-8 text-white">
+        <a href="#hero-ride" class="hover:text-cyberorange transition-colors">Return To Top</a>
+        <a href="#helmets-section" class="hover:text-cyberorange transition-colors">Helmets</a>
+        <a href="#jackets-section" class="hover:text-cyberorange transition-colors">Jackets</a>
+        <a href="#" class="hover:text-cyberorange transition-colors">Safety Lab</a>
+      </div>
+
+      <div class="text-right">
+        <p>&copy; 2026 APEX MOTORCYCLE LABS.</p>
+        <p class="text-slate-600 mt-1">ALL VELOCITIES RESPECTED.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // -------------------------------------------------------------
+    // THREE.JS 3D MOTORCYCLE HELMET BUILDER (Intro Loading Screen)
+    // -------------------------------------------------------------
+    const canvas = document.getElementById('helmet-canvas');
+    let scene, camera, renderer, helmetGroup;
+    let isDraggingHelmet = false;
+    let prevMousePos = { x: 0, y: 0 };
+    let targetRotationX = 0.15;
+    let targetRotationY = 0;
+
+    function init3DHelmet() {
+      if (!canvas) return;
+
+      scene = new THREE.Scene();
+      camera = new THREE.PerspectiveCamera(45, window.innerWidth / window.innerHeight, 0.1, 1000);
+      camera.position.set(0, 0, 8.5);
+
+      renderer = new THREE.WebGLRenderer({ canvas: canvas, alpha: true, antialias: true });
+      renderer.setSize(window.innerWidth, window.innerHeight);
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+      helmetGroup = new THREE.Group();
+
+      // 1. Helmet Outer Shell (Aerodynamic Sculpted Outer Form)
+      const shellGeo = new THREE.SphereGeometry(2.3, 64, 48);
+      // Deform sphere to create aerodynamic motorcycle full-face helmet shape
+      const pos = shellGeo.attributes.position;
+      for (let i = 0; i < pos.count; i++) {
+        let x = pos.getX(i);
+        let y = pos.getY(i);
+        let z = pos.getZ(i);
+
+        // Flatten sides slightly
+        x *= 0.88;
+        // Elongate rear spoiler
+        if (z < -0.2) z *= 1.25;
+        // Chin bar contour
+        if (y < 0 && z > 0.4) {
+          y *= 0.85;
+          z *= 1.15;
+        }
+        pos.setXYZ(i, x, y, z);
+      }
+      shellGeo.computeVertexNormals();
+
+      // Glossy Carbon Composite Material
+      const shellMat = new THREE.MeshPhysicalMaterial({
+        color: 0x16161a,
+        metalness: 0.85,
+        roughness: 0.18,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.1,
+        reflectivity: 0.95
+      });
+      const helmetShell = new THREE.Mesh(shellGeo, shellMat);
+      helmetGroup.add(helmetShell);
+
+      // 2. Tinted Visor Glass
+      const visorGeo = new THREE.CylinderGeometry(2.02, 2.02, 1.25, 32, 1, true, -Math.PI / 3, (2 * Math.PI) / 3);
+      const visorMat = new THREE.MeshPhysicalMaterial({
+        color: 0x111116,
+        metalness: 0.95,
+        roughness: 0.05,
+        transmission: 0.4,
+        transparent: true,
+        opacity: 0.92,
+        reflectivity: 1.0,
+        clearcoat: 1.0
+      });
+      const visor = new THREE.Mesh(visorGeo, visorMat);
+      visor.position.set(0, 0.15, 0.45);
+      visor.rotation.y = Math.PI / 2;
+      helmetGroup.add(visor);
+
+      // 3. Chin Air Vent Scoops
+      const ventGeo = new THREE.BoxGeometry(0.8, 0.22, 0.4);
+      const ventMat = new THREE.MeshStandardMaterial({ color: 0x050505, roughness: 0.7 });
+      const chinVent = new THREE.Mesh(ventGeo, ventMat);
+      chinVent.position.set(0, -1.0, 2.15);
+      chinVent.rotation.x = -0.3;
+      helmetGroup.add(chinVent);
+
+      // 4. Aerodynamic Rear Wing / Spoiler
+      const spoilerGeo = new THREE.BoxGeometry(1.4, 0.18, 0.8);
+      const spoilerMat = new THREE.MeshStandardMaterial({ color: 0xff4d00, metalness: 0.5, roughness: 0.2 });
+      const spoiler = new THREE.Mesh(spoilerGeo, spoilerMat);
+      spoiler.position.set(0, 0.6, -2.4);
+      spoiler.rotation.x = 0.35;
+      helmetGroup.add(spoiler);
+
+      // 5. Lighting Setup (Dramatic Studio Lighting)
+      const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+      scene.add(ambientLight);
+
+      // Rim light for carbon silhouette
+      const rimLight1 = new THREE.DirectionalLight(0xffffff, 2.2);
+      rimLight1.position.set(5, 5, 4);
+      scene.add(rimLight1);
+
+      const rimLight2 = new THREE.DirectionalLight(0xff4d00, 2.8);
+      rimLight2.position.set(-6, -2, -3);
+      scene.add(rimLight2);
+
+      const topLight = new THREE.DirectionalLight(0x7dd3fc, 1.2);
+      topLight.position.set(0, 8, 2);
+      scene.add(topLight);
+
+      scene.add(helmetGroup);
+
+      // Mouse drag rotation listeners
+      window.addEventListener('mousedown', (e) => {
+        isDraggingHelmet = true;
+        prevMousePos = { x: e.clientX, y: e.clientY };
+      });
+      window.addEventListener('mouseup', () => {
+        isDraggingHelmet = false;
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (isDraggingHelmet && helmetGroup) {
+          const deltaX = e.clientX - prevMousePos.x;
+          const deltaY = e.clientY - prevMousePos.y;
+          targetRotationY += deltaX * 0.008;
+          targetRotationX += deltaY * 0.008;
+          prevMousePos = { x: e.clientX, y: e.clientY };
+        }
+      });
+
+      // Touch controls for mobile
+      window.addEventListener('touchmove', (e) => {
+        if (e.touches.length > 0 && helmetGroup) {
+          const touch = e.touches[0];
+          targetRotationY += 0.02;
+        }
+      });
+
+      // Animation Loop
+      function animateHelmet() {
+        requestAnimationFrame(animateHelmet);
+
+        if (!isDraggingHelmet && helmetGroup) {
+          // Slow continuous luxury turntable idle
+          targetRotationY += 0.004;
+        }
+
+        if (helmetGroup) {
+          helmetGroup.rotation.y += (targetRotationY - helmetGroup.rotation.y) * 0.08;
+          helmetGroup.rotation.x += (targetRotationX - helmetGroup.rotation.x) * 0.08;
+        }
+
+        renderer.render(scene, camera);
+      }
+      animateHelmet();
+
+      window.addEventListener('resize', onWindowResize);
+    }
+
+    function onWindowResize() {
+      if (!camera || !renderer) return;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    }
+
+    init3DHelmet();
+  </script>
+
+  <script>
+    // -------------------------------------------------------------
+    // LUCIDE ICONS INITIALIZATION
+    // -------------------------------------------------------------
+    lucide.createIcons();
+
+    // -------------------------------------------------------------
+    // CUSTOM TRIANGLE CURSOR MECHANISM
+    // -------------------------------------------------------------
+    const cursor = document.getElementById('cursor-triangle');
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let currentX = mouseX;
+    let currentY = mouseY;
+    let cursorAngle = 0;
+
+    window.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      // Realtime rider counter-steering banking physics
+      applyRiderTilt(e.clientX, window.innerWidth);
+    });
+
+    function renderCursor() {
+      const dx = mouseX - currentX;
+      const dy = mouseY - currentY;
+      currentX += dx * 0.22;
+      currentY += dy * 0.22;
+
+      if (Math.abs(dx) > 0.4 || Math.abs(dy) > 0.4) {
+        cursorAngle = Math.atan2(dy, dx) * (180 / Math.PI) + 90;
+      }
+
+      cursor.style.transform = `translate(${currentX}px, ${currentY}px) rotate(${cursorAngle}deg)`;
+      requestAnimationFrame(renderCursor);
+    }
+    renderCursor();
+
+    // -------------------------------------------------------------
+    // RIDER LEAN & CAMERA TILT PHYSICS (Moving mouse banks the rider!)
+    // -------------------------------------------------------------
+    const riderTiltLayer = document.getElementById('rider-tilt-layer');
+    function applyRiderTilt(clientX, screenWidth) {
+      if (!riderTiltLayer) return;
+      // Normalized between -1 (extreme left) and +1 (extreme right)
+      const ratio = (clientX / screenWidth) * 2 - 1;
+      
+      // Dynamic motorcycle lean angle: rotation Z + subtle camera drift
+      const maxTiltDeg = 7.5; 
+      const currentTilt = ratio * maxTiltDeg;
+      const translateX = -ratio * 35;
+
+      riderTiltLayer.style.transform = `scale(1.08) rotateZ(${currentTilt}deg) translateX(${translateX}px)`;
+    }
+
+    // -------------------------------------------------------------
+    // WEB AUDIO SYNTHESIZER (Rock Guitar Riff + Twin Engine Throttle)
+    // -------------------------------------------------------------
+    let audioCtx = null;
+    let isSoundMuted = false;
+    let engineOscillator = null;
+    let engineGain = null;
+
+    function initWebAudioEngine() {
+      try {
+        const AudioContext = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContext) return;
+        audioCtx = new AudioContext();
+
+        const masterVolume = audioCtx.createGain();
+        masterVolume.gain.setValueAtTime(0.22, audioCtx.currentTime);
+        masterVolume.connect(audioCtx.destination);
+
+        // Low twin-cylinder engine rumble
+        engineOscillator = audioCtx.createOscillator();
+        engineOscillator.type = 'sawtooth';
+        engineOscillator.frequency.setValueAtTime(46, audioCtx.currentTime);
+
+        const distortion = audioCtx.createWaveShaper();
+        distortion.curve = makeDistortionCurve(25);
+        distortion.oversample = '4x';
+
+        const filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(420, audioCtx.currentTime);
+
+        engineGain = audioCtx.createGain();
+        engineGain.gain.setValueAtTime(0.22, audioCtx.currentTime);
+
+        engineOscillator.connect(distortion);
+        distortion.connect(filter);
+        filter.connect(engineGain);
+        engineGain.connect(masterVolume);
+
+        engineOscillator.start();
+
+        // Play Rock Guitar Opening Riff
+        playRockIntroRiff(audioCtx, masterVolume);
+
+      } catch (err) {
+        console.warn('Audio synthesis context error:', err);
+      }
+    }
+
+    function makeDistortionCurve(amount) {
+      const k = typeof amount === 'number' ? amount : 50,
+        n_samples = 44100,
+        curve = new Float32Array(n_samples),
+        deg = Math.PI / 180;
+      for (let i = 0; i < n_samples; ++i) {
+        const x = (i * 2) / n_samples - 1;
+        curve[i] = ((3 + k) * x * 20 * deg) / (Math.PI + k * Math.abs(x));
+      }
+      return curve;
+    }
+
+    function playRockIntroRiff(ctx, destination) {
+      // Rock power chord progression (D, E, G, A)
+      const notes = [146.83, 164.81, 196.00, 220.00];
+      notes.forEach((freq, idx) => {
+        setTimeout(() => {
+          if (!ctx || isSoundMuted) return;
+          const osc1 = ctx.createOscillator();
+          const osc2 = ctx.createOscillator();
+          const noteGain = ctx.createGain();
+
+          osc1.type = 'sawtooth';
+          osc2.type = 'square';
+          osc1.frequency.setValueAtTime(freq, ctx.currentTime);
+          osc2.frequency.setValueAtTime(freq * 1.5, ctx.currentTime);
+
+          noteGain.gain.setValueAtTime(0.2, ctx.currentTime);
+          noteGain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.85);
+
+          osc1.connect(noteGain);
+          osc2.connect(noteGain);
+          noteGain.connect(destination);
+
+          osc1.start();
+          osc2.start();
+          osc1.stop(ctx.currentTime + 0.9);
+          osc2.stop(ctx.currentTime + 0.9);
+        }, idx * 230);
+      });
+    }
+
+    // Sound Toggle Button Handler (Screenshot 3 Bottom Right)
+    const soundToggleBtn = document.getElementById('sound-toggle-btn');
+    const soundIcon = document.getElementById('sound-icon');
+    const soundLabel = document.getElementById('sound-label');
+
+    soundToggleBtn.addEventListener('click', () => {
+      if (!audioCtx) {
+        initWebAudioEngine();
+        return;
+      }
+      if (audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+
+      isSoundMuted = !isSoundMuted;
+      if (isSoundMuted) {
+        if (engineGain) engineGain.gain.setTargetAtTime(0, audioCtx.currentTime, 0.05);
+        soundLabel.innerText = "MUTED";
+        soundIcon.setAttribute('data-lucide', 'volume-x');
+      } else {
+        if (engineGain) engineGain.gain.setTargetAtTime(0.22, audioCtx.currentTime, 0.05);
+        soundLabel.innerText = "SOUND ON";
+        soundIcon.setAttribute('data-lucide', 'volume-2');
+        playRockIntroRiff(audioCtx, audioCtx.destination);
+      }
+      lucide.createIcons();
+    });
+
+    // -------------------------------------------------------------
+    // INTRO SCREEN TRANSITION ("I'm in" Button Click)
+    // -------------------------------------------------------------
+    const introScreen = document.getElementById('intro-screen');
+    const btnEnter = document.getElementById('btn-enter');
+    const video = document.getElementById('ride-video');
+
+    btnEnter.addEventListener('click', () => {
+      // 1. Ignite audio synth & rock riff
+      initWebAudioEngine();
+
+      // 2. Play full screen highway rider video
+      if (video) {
+        video.play().catch(e => console.log('Video autoplay note:', e));
+      }
+
+      // 3. GSAP transition from 3D Intro into Hero
+      gsap.to(introScreen, {
+        opacity: 0,
+        scale: 1.06,
+        duration: 0.85,
+        ease: "power3.inOut",
+        onComplete: () => {
+          introScreen.style.display = 'none';
+        }
+      });
+    });
+
+    // -------------------------------------------------------------
+    // VISOR / EYE BLINK TRANSITION ON SCROLL
+    // -------------------------------------------------------------
+    let hasBlinked = false;
+    const bodyEl = document.body;
+
+    window.addEventListener('scroll', () => {
+      const scrollY = window.scrollY;
+
+      // Update bottom progress bar
+      const winHeight = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = (scrollY / winHeight) * 100;
+      const progressBar = document.getElementById('scroll-progress-bar');
+      if (progressBar) {
+        progressBar.style.width = `${progress}%`;
+      }
+
+      // Trigger the eye blink shutter when leaving the Hero view
+      if (scrollY > 50 && !hasBlinked) {
+        hasBlinked = true;
+        bodyEl.classList.add('eyelids-closed');
+
+        setTimeout(() => {
+          bodyEl.classList.remove('eyelids-closed');
+        }, 500);
+      } else if (scrollY < 20) {
+        hasBlinked = false;
+      }
+    });
+
+    // -------------------------------------------------------------
+    // FAQ ACCORDION INTERACTION
+    // -------------------------------------------------------------
+    const faqItems = document.querySelectorAll('.faq-item');
+    faqItems.forEach(item => {
+      item.addEventListener('click', () => {
+        const content = item.querySelector('.faq-content');
+        const icon = item.querySelector('.faq-icon');
+        const isHidden = content.classList.contains('hidden');
+
+        document.querySelectorAll('.faq-content').forEach(c => c.classList.add('hidden'));
+        document.querySelectorAll('.faq-icon').forEach(i => i.textContent = '+');
+
+        if (isHidden) {
+          content.classList.remove('hidden');
+          icon.textContent = '—';
+        }
+      });
+    });
+
+    // -------------------------------------------------------------
+    // THEME SWITCH
+    // -------------------------------------------------------------
+    const themeBtn = document.getElementById('theme-btn');
+    themeBtn.addEventListener('click', () => {
+      document.documentElement.classList.toggle('dark');
+    });
+
+    // GSAP ScrollTrigger refresh
+    window.addEventListener('load', () => {
+      ScrollTrigger.refresh();
+    });
+  </script>
+</body>
+</html>
