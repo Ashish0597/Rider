@@ -2,12 +2,12 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>THE RIDE — Ultra Performance Gear & Showcase</title>
 
   <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
 
   <!-- External Stylesheet -->
@@ -19,16 +19,13 @@
 </head>
 <body>
 
-  <!-- ======================================================= -->
-  <!-- AUDIO ELEMENT (APNA CUSTOM AUDIO/MUSIC YAHA ADD KAREIN) -->
-  <!-- ======================================================= -->
+  <!-- AUDIO ELEMENT (ADD YOUR CUSTOM MUSIC HERE) -->
   <audio id="custom-ride-audio" preload="auto" loop>
-    <!-- Apni mp3 audio file ka path yaha daalein (e.g. music.mp3) -->
     <source src="music.mp3" type="audio/mpeg" />
     <source src="https://cdn.pixabay.com/download/audio/2022/05/27/audio_1808fbf07a.mp3?filename=sport-tech-house-workout-club-112708.mp3" type="audio/mpeg" />
   </audio>
 
-  <!-- Custom Cursor Matching Image 1 & 2 -->
+  <!-- Custom Cursor (Desktop Only) -->
   <div id="custom-cursor">
     <svg viewBox="0 0 24 24" fill="none">
       <path d="M4 3L19 12L11.5 14L9 21L4 3Z" fill="white" stroke="black" stroke-width="1.5" stroke-linejoin="round"/>
@@ -37,9 +34,7 @@
 
   <!-- INTRO SCREEN: FULL SCREEN LOW-OPACITY BACKGROUND IMAGE -->
   <div id="intro-overlay">
-    <!-- FULLSCREEN LOW OPACITY IMAGE LAYER -->
     <div class="intro-bg-wrapper" id="intro-bg-wrapper">
-      <!-- AAP APNI IMAGE KA PATH YAHA 'src' ME REPLACE KAREIN (e.g. intro-bike.jpg) -->
       <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=1920&q=85" alt="Background Bike Atmospheric" class="intro-fullscreen-bg-img" id="intro-bg-img" />
       <div class="intro-dark-vignette"></div>
     </div>
@@ -52,6 +47,7 @@
         <span>I'm in</span>
         <div class="btn-arrow-down"></div>
       </button>
+      <span class="mobile-hint-badge">📱 TILT OR DRAG TO LEAN</span>
     </div>
   </div>
 
@@ -68,10 +64,10 @@
   <!-- MAIN EXPERIENCE WRAPPER -->
   <div id="main-app" class="hidden-init">
 
-    <!-- FLOATING TOP NAVIGATION -->
+    <!-- FLOATING TOP NAVIGATION (DESKTOP & TABLET) -->
     <header class="ride-header">
       <div class="brand-crest">
-        <svg width="26" height="26" viewBox="0 0 100 100" fill="none">
+        <svg width="24" height="24" viewBox="0 0 100 100" fill="none">
           <polygon points="50,12 90,82 10,82" stroke="white" stroke-width="8" stroke-linejoin="round"/>
           <polygon points="50,38 72,74 28,74" fill="white"/>
         </svg>
@@ -86,13 +82,17 @@
         <a href="#contact">Contact</a>
         <a href="#faq">FAQ</a>
       </nav>
+      <!-- Mobile Audio Quick Toggle in Header -->
+      <button id="header-mobile-sound-btn" class="mobile-header-btn" aria-label="Toggle Sound">
+        🔊
+      </button>
     </header>
 
     <!-- HERO SECTION WITH VIDEO & LEAN PHYSICS -->
     <section id="hero-section" class="hero-stage">
       <div class="video-perspective-wrapper" id="video-tilt-rig">
         <video id="hero-video" loop muted playsinline preload="auto">
-          <source src="./bike.mp4" type="video/mp4" />
+          <source src="bike.mp4" type="video/mp4" />
           <source src="https://assets.mixkit.co/videos/preview/mixkit-motorcyclist-traveling-down-a-scenic-highway-at-sunset-42994-large.mp4" type="video/mp4" />
         </video>
         <div class="video-overlay-gradient"></div>
@@ -109,12 +109,12 @@
         <div class="hero-speech-bubbles">
           <div class="bubble bubble-1">Alright, let's ride.</div>
           <div class="bubble bubble-2">
-            <span>Scroll down when you're ready.</span>
+            <span>Scroll down when ready</span>
             <div class="scroll-chevron"></div>
           </div>
         </div>
 
-        <!-- Audio & Controls Bar -->
+        <!-- Controls Bar -->
         <div class="hero-bottom-bar">
           <div class="progress-track">
             <div class="progress-bar-fill" id="audio-progress"></div>
@@ -147,7 +147,7 @@
         <div class="about-lead">
           <h2 class="display-title">ENGINEERED FOR THE APEX HUNTERS.</h2>
           <p class="about-desc">
-            Forged in high-velocity wind tunnels and refined on championship circuits. We strip away excess weight, maximize structural rigidity, and design gear that connects the rider directly with the tarmac.
+            Forged in high-velocity wind tunnels and refined on championship circuits. We strip away excess weight, maximize structural rigidity, and connect the rider directly with the tarmac.
           </p>
         </div>
         <div class="specs-mini-grid">
@@ -183,7 +183,7 @@
           <div class="product-card">
             <div class="card-tag">NEW RELEASE</div>
             <div class="card-img-wrap">
-              <img src="./img/img1.jpg" alt="Phantom Track Spec Helmet" />
+              <img src="https://images.unsplash.com/photo-1558981403-c5f9899a28bc?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Phantom Track Spec Helmet" />
             </div>
             <div class="card-details">
               <h3>PHANTOM TRACK SPEC</h3>
@@ -196,7 +196,7 @@
           <div class="product-card">
             <div class="card-tag highlight">BESTSELLER</div>
             <div class="card-img-wrap">
-              <img src="./img/img2.jpg" alt="Ghost Mono White" />
+              <img src="https://images.unsplash.com/photo-1542282088-72c9c27ed0cd?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Ghost Mono White" />
             </div>
             <div class="card-details">
               <h3>GHOST MONO RACER</h3>
@@ -209,7 +209,7 @@
           <div class="product-card">
             <div class="card-tag">URBAN CAFE</div>
             <div class="card-img-wrap">
-              <img src="./img/img3.jpg" alt="Veloce Retro Bullitt" />
+              <img src="https://images.unsplash.com/photo-1508974239320-0a029497e820?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Veloce Retro Bullitt" />
             </div>
             <div class="card-details">
               <h3>VELOCE RETRO BULLITT</h3>
@@ -222,7 +222,7 @@
           <div class="product-card">
             <div class="card-tag">STEALTH EDITION</div>
             <div class="card-img-wrap">
-              <img src="./img/img4.jpg" alt="Stealth Matte Carbon" />
+              <img src="https://images.unsplash.com/photo-1579783900882-c0d3dad7b119?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Stealth Matte Carbon" />
             </div>
             <div class="card-details">
               <h3>NIGHTHAWK STEALTH</h3>
@@ -235,7 +235,7 @@
           <div class="product-card">
             <div class="card-tag">CIRCUIT SPEC</div>
             <div class="card-img-wrap">
-              <img src="./img/img5.jpg" alt="Apex Grand Prix GP-1" />
+              <img src="https://images.unsplash.com/photo-1558981806-ec527fa84c39?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Apex Grand Prix GP-1" />
             </div>
             <div class="card-details">
               <h3>GP-1 CORSA RACE</h3>
@@ -248,7 +248,7 @@
           <div class="product-card">
             <div class="card-tag">ADVENTURE DUAL</div>
             <div class="card-img-wrap">
-              <img src="./img/img6.jpg" alt="Sahara Trek ADV Helmet" />
+              <img src="https://images.unsplash.com/photo-1616422285623-13ff0162193c?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Sahara Trek ADV Helmet" />
             </div>
             <div class="card-details">
               <h3>SAHARA EXPEDITION</h3>
@@ -258,6 +258,8 @@
             </div>
           </div>
         </div>
+        <!-- Mobile Carousel Swipe Visual Dots -->
+        <div class="mobile-slider-dots" id="slider-dots"></div>
       </section>
 
       <!-- 3. JACKETS SHOWCASE (5 PIECES) -->
@@ -273,7 +275,7 @@
         <div class="jacket-grid">
           <div class="jacket-card">
             <div class="jacket-img-box">
-              <img src="https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=800&q=80" alt="Overlord Pro Armor II" />
+              <img src="https://images.unsplash.com/photo-1487222477894-8943e31ef7b2?auto=format&fit=crop&w=800&q=80" loading="lazy" alt="Overlord Pro Armor II" />
             </div>
             <div class="jacket-body">
               <span class="j-badge">TRACK SPEC</span>
@@ -289,7 +291,7 @@
 
           <div class="jacket-card">
             <div class="jacket-img-box">
-              <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80" alt="Vintage Cafe Racer Hide" />
+              <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&w=800&q=80" loading="lazy" alt="Vintage Cafe Racer Hide" />
             </div>
             <div class="jacket-body">
               <span class="j-badge">HERITAGE</span>
@@ -305,7 +307,7 @@
 
           <div class="jacket-card">
             <div class="jacket-img-box">
-              <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80" alt="Storm-Core Vented Mesh" />
+              <img src="https://images.unsplash.com/photo-1544441893-675973e31985?auto=format&fit=crop&w=800&q=80" loading="lazy" alt="Storm-Core Vented Mesh" />
             </div>
             <div class="jacket-body">
               <span class="j-badge">SUMMER AIRFLOW</span>
@@ -321,7 +323,7 @@
 
           <div class="jacket-card">
             <div class="jacket-img-box">
-              <img src="https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?auto=format&fit=crop&w=800&q=80" alt="Nordic ADV Gore-Tex" />
+              <img src="https://images.unsplash.com/photo-1521223890158-f9f7c3d5d504?auto=format&fit=crop&w=800&q=80" loading="lazy" alt="Nordic ADV Gore-Tex" />
             </div>
             <div class="jacket-body">
               <span class="j-badge">ALL-WEATHER ADV</span>
@@ -337,7 +339,7 @@
 
           <div class="jacket-card">
             <div class="jacket-img-box">
-              <img src="https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=800&q=80" alt="Apex Street Fighter Hoodie" />
+              <img src="https://images.unsplash.com/photo-1516257984-b1b4d707412e?auto=format&fit=crop&w=800&q=80" loading="lazy" alt="Apex Street Fighter Hoodie" />
             </div>
             <div class="jacket-body">
               <span class="j-badge">URBAN HOODIE</span>
@@ -366,7 +368,7 @@
         <div class="accessories-quad">
           <div class="acc-tile">
             <div class="acc-img-wrap">
-              <img src="./img/img7.jpg"alt="Carbon Knuckle Gloves" />
+              <img src="https://images.unsplash.com/photo-1589182373726-e4f658ab50f0?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Carbon Knuckle Gloves" />
             </div>
             <h4>Carbon Knuckle Gloves</h4>
             <p>Goatskin chassis with thermoformed carbon knuckles and palm sliders.</p>
@@ -374,7 +376,7 @@
 
           <div class="acc-tile">
             <div class="acc-img-wrap">
-              <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=700&q=80" alt="Helmet Mesh Intercom" />
+              <img src="https://images.unsplash.com/photo-1546435770-a3e426bf472b?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Helmet Mesh Intercom" />
             </div>
             <h4>Mesh Comms 3.0 Intercom</h4>
             <p>JBL tuned 45mm helmet drivers with 1.6km group mesh intercom range.</p>
@@ -382,7 +384,7 @@
 
           <div class="acc-tile">
             <div class="acc-img-wrap">
-              <img src="https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&w=700&q=80" alt="Aerodynamic Dry Pack Backpack" />
+              <img src="https://images.unsplash.com/photo-1622560480605-d83c853bc5c3?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Aerodynamic Dry Pack Backpack" />
             </div>
             <h4>Aerodynamic Dry-Pack 30L</h4>
             <p>Rolltop 100% waterproof rider backpack contoured for zero helmet turbulence.</p>
@@ -390,7 +392,7 @@
 
           <div class="acc-tile">
             <div class="acc-img-wrap">
-              <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80" alt="Track Vented Riding Boots" />
+              <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?auto=format&fit=crop&w=700&q=80" loading="lazy" alt="Track Vented Riding Boots" />
             </div>
             <h4>Torque Vented Race Boots</h4>
             <p>Ankle torsional brace system with replaceable magnesium toe sliders.</p>
@@ -423,8 +425,8 @@
                 <input type="text" placeholder="Your Name" required class="input-field" />
                 <input type="email" placeholder="Your Email" required class="input-field" />
               </div>
-              <input type="text" placeholder="Gear of Interest (e.g. Phantom Helmet, Overlord Jacket)" class="input-field" />
-              <textarea placeholder="Your Message or Fitting Inquiry..." rows="4" required class="input-field"></textarea>
+              <input type="text" placeholder="Gear of Interest" class="input-field" />
+              <textarea placeholder="Your Message..." rows="3" required class="input-field"></textarea>
               <button type="submit" class="submit-btn">SEND TRANSMISSION →</button>
             </form>
           </div>
@@ -440,19 +442,19 @@
           <details class="faq-item" open>
             <summary>How do I choose the correct helmet size?</summary>
             <div class="faq-answer">
-              Measure around the largest part of your head (about 1 inch above your eyebrows). Our helmets have exchangeable 3D cheek pads to customize the fit from snug track to touring comfort.
+              Measure around the widest part of your head above your eyebrows. All helmets include removable 3D contour cheek pads to adjust between track snugness and touring comfort.
             </div>
           </details>
           <details class="faq-item">
-            <summary>Are these helmets certified for competitive racing?</summary>
+            <summary>Are these helmets certified for track racing?</summary>
             <div class="faq-answer">
-              Yes, all Track-Spec variants carry both ECE 22.06 and FIM homologation labels required by international racing circuits.
+              Yes, all Track-Spec helmets carry ECE 22.06 and FIM homologation labels compliant with international sanctioning bodies.
             </div>
           </details>
           <details class="faq-item">
             <summary>What warranty covers crash damage?</summary>
             <div class="faq-answer">
-              We offer a 5-year structural warranty, plus a 50% crash-replacement discount if your helmet is involved in an incident within the first 24 months.
+              5-year structural warranty, plus 50% crash-replacement coverage within the first 24 months.
             </div>
           </details>
         </div>
@@ -477,20 +479,39 @@
             <a href="#contact">Contact Support</a>
             <a href="#">Instagram</a>
             <a href="#">YouTube</a>
-            <a href="#">Track Days</a>
           </div>
         </div>
         <div class="footer-bottom">
-          <p>© 2026 APEX MOTORWEAR CO. ALL RIGHTS RESERVED.</p>
+          <p>© 2026 APEX MOTORWEAR CO.</p>
           <div class="footer-legal">
-            <a href="#">PRIVACY POLICY</a>
-            <a href="#">TERMS OF APEX</a>
-            <a href="#">SAFETY CERTIFICATES</a>
+            <a href="#">PRIVACY</a>
+            <a href="#">TERMS</a>
           </div>
         </div>
       </footer>
 
     </main>
+
+    <!-- MOBILE BOTTOM THUMB DOCK (Visible only on mobile screens) -->
+    <nav class="mobile-bottom-dock" id="mobile-dock">
+      <a href="#hero-section" class="dock-btn active">
+        <span class="dock-icon">🏍️</span>
+        <span class="dock-txt">Ride</span>
+      </a>
+      <a href="#helmet-gear" class="dock-btn">
+        <span class="dock-icon">🪖</span>
+        <span class="dock-txt">Helmets</span>
+      </a>
+      <a href="#jacket-gear" class="dock-btn">
+        <span class="dock-icon">🧥</span>
+        <span class="dock-txt">Jackets</span>
+      </a>
+      <a href="#contact" class="dock-btn">
+        <span class="dock-icon">✉️</span>
+        <span class="dock-txt">Contact</span>
+      </a>
+    </nav>
+
   </div>
 
   <!-- External Script -->
